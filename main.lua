@@ -1,3 +1,38 @@
+local console_text = {}
+console = {}
+console.open = false
+console.allowed_chars = 'abcdefghijklmnopqrstuvwxyz _-+/!#@'
+console.cur_line = ''
+console.commands = {}
+function console.toggle()
+	console.open = not console.open
+
+	love.keyboard.setKeyRepeat(console.open)
+	love.keyboard.setTextInput(console.open)
+end
+
+function console.print(text)
+	table.insert(console_text, 1, text)
+	if #console_text == 11 then
+		console_text[11] = nil
+	end
+end
+
+function console.paint()
+	love.graphics.setColor(200,200,200)
+	love.graphics.print(' > '..console.cur_line..(love.timer.getTime() % 0.4 < 0.2 and '|' or ''), 10, 10);
+	for i = 1, #console_text do
+		love.graphics.print(console_text[i], 10, 10 + i * 20)
+	end
+end
+function console.addCommand(cmd, func)
+	console.commands[cmd] = func
+end
+
+print = console.print
+
+require 'lib.table'
+require 'lib.string'
 require 'lib.hook'
 require 'lib.math'
 require 'lib.util'
@@ -8,6 +43,7 @@ require 'obj_color'
 require 'obj_mirror'
 require 'obj_map'
 require 'obj_laser'
+require 'edit'
 
 function love.load()
 	
@@ -89,8 +125,10 @@ function love.load()
 	map.addLaser(laser)
 end
 
-function love.draw()
 
+
+
+function love.draw()
 	MOUSE_X = love.mouse.getX()
 	MOUSE_Y = love.mouse.getY()
 
@@ -98,6 +136,10 @@ function love.draw()
 	love.graphics.setColor(255,255,255)
 
 	hook.Call('draw')
+
+	if console.open then
+		console.paint()
+	end
 end
 
 local t = 0
@@ -109,7 +151,7 @@ function love.update(dt)
 	hook.Call('update', dt)
 end
 
-function love.mousepressed( x, y, button )
+function love.mousepressed( x, y, button)
 	hook.Call('mousepressed', x, y, button)
 	if button == 'l' then
 		hook.Call('mousepressed_left', x, y, 'l')
@@ -121,9 +163,35 @@ function love.mousepressed( x, y, button )
 end
 
 function love.keypressed( key, isrepeat )
-	hook.Call('keypressed', key, isrepeat)
+	if key == '`' then
+		console.toggle()
+	elseif console.open then
+		if key == 'backspace' then
+			console.cur_line = console.cur_line:sub(1, console.cur_line:len() - 1)
+		elseif key == 'kpenter' or key == 'return' then
+			local cmd = console.cur_line
+			local args = string.Explode(cmd, ' ')
+			console_text[#console_text+1] = cmd
 
-	if key == 'e' then
-		EDITING = not EDITING
+			local cmd_name = table.remove(args, 1)
+			if console.commands[cmd_name or 'noneeeee'] then
+				console.commands[cmd_name](args)
+			else
+				print('command '..cmd_name..' not found.')
+			end
+
+			console.cur_line = ''
+		end
+	else
+		hook.Call('keypressed', key, isrepeat)
+
+		if key == 'e' then
+			EDITING = not EDITING
+		end
 	end
+end
+
+function love.textinput(t)
+	if t == '`' then return end
+	console.cur_line = console.cur_line .. t
 end

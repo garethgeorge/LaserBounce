@@ -23,6 +23,9 @@ end
 function mirror_mt:doMath()
 	local a = self.a
 
+	local widthh = self.width * 0.5
+	local heighth = self.height * 0.5
+
 	self.world_x1 = self.x - math.cos(a) * widthh
 	self.world_x2 = self.x + math.cos(a) * widthh
 
@@ -64,12 +67,17 @@ end
 
 function mirror_mt:draw()
 	self:preDraw()
-	if self.selected and love.timer.getTime()*2 % 1 < 0.5 then
-		love.graphics.setColor(255,255,255,255)
+	if self.static then
+		love.graphics.setColor(100,100,100,255)
 	else
-		love.graphics.setColor(255,255,255,255)
+		if self.selected and love.timer.getTime()*2 % 1 < 0.5 then
+			love.graphics.setColor(255,255,255,255)
+		else
+			love.graphics.setColor(200,200,200,255)
+		end
 	end
-	love.graphics.rectangle( 'fill', -50, -5, 100, 10)
+
+	love.graphics.rectangle( 'fill', -self.width*0.5, -self.height*0.5, self.width, self.height)
 
 
 	self:postDraw()
@@ -77,7 +85,7 @@ end
 
 function mirror_mt:drawHalo(r, g, b, a)
 	self:preDraw()
-	love.graphics.rectangle( 'fill', -51, -6, 102, 12)
+	love.graphics.rectangle( 'fill', -self.width*0.5-1, -self.height*0.5-1, self.width+2, self.height+1)
 	self:postDraw()
 end
 

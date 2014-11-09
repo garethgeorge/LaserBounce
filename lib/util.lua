@@ -5,9 +5,11 @@ local util = util
 function util.pickBest(tbl, comparator)
 	local obj = tbl[1]
 
-	for i = 2, #tbl do
-		if comparator(tbl[i], obj) then
-			obj = tbl[i]
+	if #tbl > 1 then
+		for i = 2, #tbl do
+			if tbl[i] and comparator(tbl[i], obj) then
+				obj = tbl[i]
+			end
 		end
 	end
 	return obj

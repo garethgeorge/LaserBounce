@@ -13,6 +13,15 @@ end
 function map.addLaser( laser_obj )
 	lasers[#lasers+1] = laser_obj
 end
+function map.getSelectable()
+	local selectable = {}
+	for i = 1, #mirrors do
+		if not mirrors[i].static then
+			selectable[#selectable+1] = mirrors[i]
+		end
+	end
+	return selectable
+end
 
 -- show a highlight on the mirror closest to the mouse
 local function drawClosestHalo()
@@ -20,16 +29,14 @@ local function drawClosestHalo()
 	local distFunc = util.memoize(function(mirror)
 			return math.distance2d(mirror.x, mirror.y, mousex, mousey)
 		end)
-	local closestMirror = util.pickBest(mirrors, function(a,b)
+	local closestMirror = util.pickBest(map.getSelectable(), function(a,b)
 			return distFunc(a) < distFunc(b)
 		end)
 
-	if distFunc(closestMirror) > 60 then return end
+	if not closestMirror or distFunc(closestMirror) > 60 then return end
 
-	if closestMirror then
-		love.graphics.setColor(0,255,255,255)
-		closestMirror:drawHalo()
-	end
+	love.graphics.setColor(0,255,255,255)
+	closestMirror:drawHalo()
 end
 
 
@@ -52,14 +59,14 @@ function map.selectMirror( x, y, button )
 	local distFunc = util.memoize(function(mirror)
 			return math.distance2d(mirror.x, mirror.y, x, y)
 		end)
-	local closestMirror = util.pickBest(mirrors, function(a,b)
+	local closestMirror = util.pickBest(map.getSelectable(), function(a,b)
 			return distFunc(a) < distFunc(b)
 		end)
 	
 	if map.selected_mirror then
 		map.selected_mirror.selected = false
 	end
-	if distFunc(closestMirror) > 60 then
+	if not closestMirror or distFunc(closestMirror) > 60 then
 		map.selected_mirror = nil
 	else
 		map.selected_mirror = closestMirror
@@ -67,7 +74,7 @@ function map.selectMirror( x, y, button )
 	end
 end
 
-hook.Add('mousepressed', map.selectMirror)
+hook.Add('mousepressed_left', map.selectMirror)
 
 function map.saveToTable()
 	local save_tbl = {}
@@ -80,17 +87,43 @@ function map.saveToTable()
 				y = v.y,
 				a = v.a,
 				w = v.width,
-				h = v.height
+				h = v.height,
+				s = v.static
 			})
 	end
-	return save_tbl
+
+	local save_lasers = {}
+	save_tbl.lasers = save_lasers
+	for k,v in pairs(lasers)do
+		table.insert(save_lasers, {
+				x = v.getX(),
+				y = v.getY(),
+				c = v.c,
+			})
+	end
+
+	return save_tbl 
 end
 
 function map.loadFromTable(tbl)
+	table.Empty(map.mirrors)
+	table.Empty(map.lasers)
+
 	for k,v in pairs(tbl.mirrors)do
+		print(' - loaded mirror ' .. v.x.. ' - ' .. v.y )
 		local mirror = newMirror()
+		mirror.width = v.w
+		mirror.height = v.h
+		mirror.static = v.s
 		mirror:setPos(v.x, v.y)
 		mirror:setAngle(v.a)
+		map.addMirror(mirror)
+	end
+
+	for k,v in pairs(tbl.lasers) do
+		local col = Color(v.c.r, v.c.g, v.c.b, v.c.a)
+		local laser = newLaser(v.x, v.y, col)
+		map.addLaser(laser)
 	end
 end
 
@@ -103,10 +136,26 @@ function map.saveToFile(mapid)
 	love.filesystem.write('maps/'..mapid..'.map', data, data:len())
 end
 
-hook.Add('keypressed', function(key)
-	if key == 's' then
-		map.saveToFile(SAVE_NAME)
+function map.loadFromFile(mapid)
+	local path = 'maps/'..mapid..'.map'
+	local data = love.filesystem.read(path, love.filesystem.getSize(path))
+	map.loadFromTable(json.decode(data))
+end
+
+console.addCommand('load', function(args)
+	if not args[1] then
+		print 'please enter a file name'
+		return
 	end
+	print('loading map from file '..'maps/'..args[1]..'.map')
+	map.loadFromFile(args[1])
 end)
 
-
+console.addCommand('save', function(args)
+	if not args[1] then 
+		print 'please enter a file name.'
+		return
+	end
+	print('saving map to file '..'maps/'..args[1]..'.map')
+	map.saveToFile(args[1])
+end)

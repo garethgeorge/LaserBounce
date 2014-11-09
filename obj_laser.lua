@@ -1,5 +1,6 @@
-function newLaser(_x, _y)
+function newLaser(_x, _y, c)
 	local self = {}
+	self.c = c or Color(0,255,255)
 	local x, y = _x, _y
 	function self.getPos()
 		return x, y
@@ -14,7 +15,7 @@ function newLaser(_x, _y)
 	end
 
 	function self.draw()
-		love.graphics.setColor(0,255,255,255)
+		love.graphics.setColor(self.c:unpack())
 
 		local x, y = x, y
 		local xdir, ydir = 1, 0
