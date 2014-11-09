@@ -62,7 +62,7 @@ function map.draw()
 	end
 	love.graphics.setShader()
 
-	local haveWon = true
+	local haveWon = #goals > 0
 	for i = 1, #goals do
 		if not goals[i].hit then
 			haveWon = false

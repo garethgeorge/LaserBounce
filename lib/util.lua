@@ -72,3 +72,4 @@ function util.distancePointToLine(x0, y0, x1, y1, x2, y2)
 	local Dx, Dy = x2-x1, y2-y1
 	return abs(Dy*x0 - Dx*y0 - x1*y2 + x2*y1) / sqrt(Dx*Dx + Dy*Dy)
 end
+

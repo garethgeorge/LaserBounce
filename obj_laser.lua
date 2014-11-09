@@ -3,7 +3,7 @@ local love = love
 function newLaser(_x, _y, c)
 	local self = {}
 	self.c = c or Color(0,255,255)
-	local r, g, b = c.r, c.b, c.a
+	local r, g, b = c.r, c.g, c.b
 
 	local x, y = _x, _y
 	function self.getPos()
@@ -100,9 +100,13 @@ function newLaser(_x, _y, c)
 				if col.r == r and col.g == g and col.b == b then
 					frac = util.distancePointToLine(goal.x, goal.y, x1, y1, x2, y2) / goal.r
 					if frac < 1 then
-						dist = math.distance2d(x, y, goal.x, goal.y)
-						if not (best_goal or best_mirror) or dist < best_distance then
-							print 'wow this worked'
+						dist = math.distance2d(x2, y2, goal.x, goal.y)
+						-- when there is
+						--   - no best goal, no best mirror - we can just update
+						--   - no best goal, best mirror - distance check
+						--   - best goal, no best mirror - distance check
+						--   - best goal and best mirror - distance check
+						if (not best_goal and not best_mirror) or ((best_goal or best_mirror) and dist < best_distance) then
 							best_distance = dist
 							best_mirror = nil
 							best_goal = goal

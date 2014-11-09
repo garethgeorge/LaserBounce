@@ -59,7 +59,7 @@ function love.load()
         {
         	valueThingy = time*10 + pixel_coords.x/30 + pixel_coords.y/60;
         	scale = cos(valueThingy) * 0.5 + 0.5;
-        	scale = 0.5 + scale * 0.5;
+        	scale = 0.6 + scale * 0.4;
         	r = color.r * scale;
 			g = color.g * scale;
 			b = color.b * scale;
@@ -78,7 +78,7 @@ function love.load()
         {
         	valueThingy = time + pixel_coords.x/50 + pixel_coords.y/100;
         	scale = 1-abs(cos(valueThingy));
-        	scale = 0.5 + scale * 0.5;
+        	scale = 0.6 + scale * 0.4;
         	r = color.r * scale;
 			g = color.g * scale;
 			b = color.b * scale;
