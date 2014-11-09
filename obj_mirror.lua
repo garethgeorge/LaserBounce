@@ -12,10 +12,16 @@ mirror_mt.height = height
 function mirror_mt:setPos(x, y)
 	self.x = x 
 	self.y = y
+	self:doMath()
 end
 
 function mirror_mt:setAngle(a)
 	self.a = a
+	self:doMath()
+end
+
+function mirror_mt:doMath()
+	local a = self.a
 
 	self.world_x1 = self.x - math.cos(a) * widthh
 	self.world_x2 = self.x + math.cos(a) * widthh
@@ -38,12 +44,6 @@ function mirror_mt:setAngle(a)
 
 	self.world_n2x = self.n2x + self.x
 	self.world_n2y = self.n2y + self.y
-
-	--[[self.n1x = -dy/length
-	self.n1y = dx/length
-
-	self.n2x = dy/length
-	self.n2y = -dx/length]]
 end
 
 function mirror_mt:rotate(a)
@@ -67,7 +67,7 @@ function mirror_mt:draw()
 	if self.selected and love.timer.getTime()*2 % 1 < 0.5 then
 		love.graphics.setColor(255,255,255,255)
 	else
-		love.graphics.setColor(self.c:unpack())
+		love.graphics.setColor(255,255,255,255)
 	end
 	love.graphics.rectangle( 'fill', -50, -5, 100, 10)
 
@@ -92,9 +92,25 @@ function mirror_mt:getNearestNormal(x, y)
 	end
 end
 
+function mirror_mt:onBounce()
+	-- OVERRIDE
+end
 
-function newMirror(c)
-	local newMirror = setmetatable({}, mirror_mt)
-	newMirror.c = c
+
+function newMirror()
+	local newMirror = setmetatable({a=0, x=0, y=0}, mirror_mt)
 	return newMirror
 end
+
+
+hook.Add('keypressed', function(key)
+	if map.selected_mirror then
+		if key == 'up' or key == 'right' then
+			map.selected_mirror:rotate(3.141592653589/24)
+			return true
+		elseif key == 'down' or key == 'left' then
+			map.selected_mirror:rotate(-3.141592653589/24)
+			return true
+		end
+	end
+end)

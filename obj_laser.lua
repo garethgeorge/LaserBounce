@@ -14,7 +14,7 @@ function newLaser(_x, _y)
 	end
 
 	function self.draw()
-		love.graphics.setColor(255,255,255,255)
+		love.graphics.setColor(0,255,255,255)
 
 		local x, y = x, y
 		local xdir, ydir = 1, 0
@@ -53,7 +53,7 @@ function newLaser(_x, _y)
 					inter_x, inter_y = util.intersection(
 							x1, y1,
 							x2, y2,
-							mirror.world_x1, mirror.world_y1, 
+							mirror.world_x1, mirror.world_y1,
 							mirror.world_x2, mirror.world_y2
 						)
 
@@ -89,9 +89,10 @@ function newLaser(_x, _y)
 				x = xhit
 				y = yhit
 
+				best_mirror:onBounce()
+
 				drawPass()
 			else
-				love.graphics.setColor(255,255,255,255)
 				love.graphics.line(x, y, x2, y2)
 			end
 		end
