@@ -47,13 +47,15 @@ function util.intersection(x1, y1, x2, y2, x3, y3, x4, y4)
 	return x, y
 end
 
-function util.intersection_fraction(x1, y1, x2, y2, x3, y3, x4, y4)
-	local denom = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4) -- same for both
-	if denom == 0 then return nil end -- if it is zero they are parallel
-	return ((x3*y4 - y3*x4) - (x1*y2 - y1*x2)) / denom
+function util.mirror(px, py, x0, y0, x1, y1)
+   local dx  = (x1 - x0);
+   local dy  = (y1 - y0);
+
+   local a   = (dx * dx - dy * dy) / (dx*dx + dy*dy);
+   local b   = 2 * dx * dy / (dx*dx + dy*dy);
+
+   local x2  = (a * (px - x0) + b*(py - y0) + x0); 
+   local y2  = (b * (px - x0) - a*(py - y0) + y0);
+
+   return x2, y2;
 end
-
-
-
-
-

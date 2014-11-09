@@ -1,12 +1,18 @@
 map = {}
 local mirrors = {}
+local lasers = {}
 map.mirrors = mirrors
+map.lasers = lasers
+
 
 map.selected_mirror = nil
 
 
 function map.addMirror( mirror_obj )
-	map.mirrors[#map.mirrors+1] = mirror_obj
+	mirrors[#mirrors+1] = mirror_obj
+end
+function map.addLaser( laser_obj )
+	lasers[#lasers+1] = laser_obj
 end
 
 -- show a highlight on the mirror closest to the mouse
@@ -32,6 +38,10 @@ function map.draw()
 	drawClosestHalo()
 	for i = 1, #mirrors do
 		mirrors[i]:draw()
+	end
+
+	for i = 1, #lasers do
+		lasers[i]:draw()
 	end
 end
 

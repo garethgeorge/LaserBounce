@@ -5,6 +5,7 @@ require 'constants'
 require 'obj_color'
 require 'obj_mirror'
 require 'obj_map'
+require 'obj_laser'
 
 function love.load()
 	love.window.setTitle('Lasers and Mirrors')
@@ -15,20 +16,30 @@ function love.load()
 	love.graphics.setBackgroundColor(0,0,0)
 
 	local test = newMirror(Color(255,0,0))
-	test:setPos(SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.5)
+	test:setPos(SCREEN_WIDTH*0.25, SCREEN_HEIGHT*0.25)
 	test:setAngle(0)
 	map.addMirror(test)
 
-
 	local test = newMirror(Color(255,0,255))
-	test:setPos(SCREEN_WIDTH*0.2, SCREEN_HEIGHT*0.5)
+	test:setPos(SCREEN_WIDTH*0.25, SCREEN_HEIGHT*0.5)
 	test:setAngle(0)
 	map.addMirror(test)
 
 	local test = newMirror(Color(255,0,0))
-	test:setPos(SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.2)
-	test:setAngle(3.141592653589*0.25)
+	test:setPos(SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.25)
+	test:setAngle(0)
 	map.addMirror(test)
+
+
+	local test = newMirror(Color(255,0,0))
+	test:setPos(SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.5)
+	test:setAngle(0)
+	map.addMirror(test)
+
+	local laser = newLaser(0, SCREEN_WIDTH * 0.5)
+	map.addLaser(laser)
+
+
 end
 
 function love.draw()
@@ -37,15 +48,7 @@ function love.draw()
 
 	love.graphics.clear()
 
-
 	love.graphics.setColor(255,255,255)
-	local x = util.intersection_fraction(
-		0, 0,
-		0, 3,
-		0, 4,
-		3, 4
-		)
-	love.graphics.print('('..x..')', 50, 50)
 
 	map.draw()
 end
@@ -57,9 +60,9 @@ end
 function love.keypressed( key, isrepeat )
 	if map.selected_mirror then
 		if key == 'up' or key == 'right' then
-			map.selected_mirror:rotate(3.141592653589/12)
+			map.selected_mirror:rotate(3.141592653589/24)
 		elseif key == 'down' or key == 'left' then
-			map.selected_mirror:rotate(-3.141592653589/12)
+			map.selected_mirror:rotate(-3.141592653589/24)
 		end
 	end
 end
