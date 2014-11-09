@@ -73,7 +73,7 @@ function mirror_mt:draw()
 		if self.selected and love.timer.getTime()*2 % 1 < 0.5 then
 			love.graphics.setColor(255,255,255,255)
 		else
-			love.graphics.setColor(200,200,200,255)
+			love.graphics.setColor(155,155,155,255)
 		end
 	end
 

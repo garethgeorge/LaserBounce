@@ -1,5 +1,11 @@
 util = util or {}
 
+local math = math
+local floor = math.floor
+local abs = math.abs
+local sqrt = math.sqrt
+
+
 local util = util
 
 function util.pickBest(tbl, comparator)
@@ -60,4 +66,9 @@ function util.mirror(px, py, x0, y0, x1, y1)
    local y2  = (b * (px - x0) - a*(py - y0) + y0);
 
    return x2, y2;
+end
+
+function util.distancePointToLine(x0, y0, x1, y1, x2, y2)
+	local Dx, Dy = x2-x1, y2-y1
+	return abs(Dy*x0 - Dx*y0 - x1*y2 + x2*y1) / sqrt(Dx*Dx + Dy*Dy)
 end

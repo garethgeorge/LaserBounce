@@ -43,6 +43,7 @@ require 'obj_color'
 require 'obj_mirror'
 require 'obj_map'
 require 'obj_laser'
+require 'obj_goal'
 require 'edit'
 
 function love.load()
@@ -85,6 +86,9 @@ function love.load()
         }
     ]]
 
+    font_default = love.graphics.newFont(12)
+    font_big = love.graphics.newFont(30)
+
 
 	love.window.setTitle('Lasers and Mirrors')
 	love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT, {
@@ -93,36 +97,6 @@ function love.load()
 
 	love.graphics.setBackgroundColor(0,0,0)
 
-	local test = newMirror()
-	test:setPos(SCREEN_WIDTH*0.25, SCREEN_HEIGHT*0.25)
-	test:setAngle(0)
-	map.addMirror(test)
-
-	local test = newMirror()
-	test:setPos(SCREEN_WIDTH*0.25, SCREEN_HEIGHT*0.5)
-	test:setAngle(0)
-	map.addMirror(test)
-
-	local test = newMirror()
-	test:setPos(SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.25)
-	test:setAngle(0)
-	map.addMirror(test)
-
-	local test = newMirror()
-	test:setPos(SCREEN_WIDTH*0.5, SCREEN_HEIGHT*0.5)
-	test:setAngle(0)
-	map.addMirror(test)
-
-	local test = newMirror()
-	test:setPos(SCREEN_WIDTH*0.75, SCREEN_HEIGHT*0.5)
-	test:setAngle(0)
-	test.onBounce = function()
-		GAME_STATE = 'winner'
-	end
-	map.addMirror(test)
-
-	local laser = newLaser(0, SCREEN_WIDTH * 0.5)
-	map.addLaser(laser)
 end
 
 
@@ -132,6 +106,7 @@ function love.draw()
 	MOUSE_X = love.mouse.getX()
 	MOUSE_Y = love.mouse.getY()
 
+	love.graphics.setFont(font_default)
 	love.graphics.clear()
 	love.graphics.setColor(255,255,255)
 
@@ -170,7 +145,7 @@ function love.keypressed( key, isrepeat )
 			console.cur_line = console.cur_line:sub(1, console.cur_line:len() - 1)
 		elseif key == 'kpenter' or key == 'return' then
 			local cmd = console.cur_line
-			local args = string.Explode(cmd, ' ')
+			local args = string.Explode(cmd)
 			console_text[#console_text+1] = cmd
 
 			local cmd_name = table.remove(args, 1)

@@ -8,6 +8,45 @@ console.addCommand('newmirror', function(args)
 	map.addMirror(test)
 end)
 
+console.addCommand('newlaser', function(args)
+	if #args ~= 5 then
+		print('error: expected x, y, r, g, b')
+		return 
+	end
+
+	local laser = newLaser(
+		tonumber(args[1])*SCREEN_HEIGHT,
+		tonumber(args[2])*SCREEN_WIDTH,
+		Color(
+			tonumber(args[3]), 
+			tonumber(args[4]), 
+			tonumber(args[5])
+		));
+	map.addLaser(laser)
+end)
+
+console.addCommand('newgoal', function(args)
+	if #args ~= 3 then
+		print 'please provide r, g, b'
+	else
+		print 'click to set the goal position'
+		local mousepressed = love.mousepressed
+		love.mousepressed = function(x1, y1)
+			print 'click again to specify a radius'
+			love.mousepressed = function(x2, y2)
+				print 'created new goal successfully'
+				local dist = math.distance2d(x1, y1, x2, y2)
+				local new = newGoal()
+				new:setPos(x1, y1)
+				new:setColor(Color(tonumber(args[1]), tonumber(args[2]), tonumber(args[3])))
+				new:setRadius(dist)
+				map.addGoal(new)
+				love.mousepressed = mousepressed
+			end
+		end
+	end
+end)
+
 console.addCommand('edit', function(args)
 	EDITING = true
 end)

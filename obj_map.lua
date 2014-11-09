@@ -1,8 +1,10 @@
 map = {}
 local mirrors = {}
 local lasers = {}
+local goals = {}
 map.mirrors = mirrors
 map.lasers = lasers
+map.goals = goals
 
 map.selected_mirror = nil
 
@@ -13,6 +15,10 @@ end
 function map.addLaser( laser_obj )
 	lasers[#lasers+1] = laser_obj
 end
+function map.addGoal( goal_obj )
+	goals[#goals+1] = goal_obj
+end
+
 function map.getSelectable()
 	local selectable = {}
 	for i = 1, #mirrors do
@@ -47,10 +53,28 @@ function map.draw()
 		mirrors[i]:draw()
 	end
 	love.graphics.setShader(effect_laser)
+	for i = 1, #goals do
+		goals[i].hit = false
+		goals[i]:draw()
+	end
 	for i = 1, #lasers do
 		lasers[i]:draw()
 	end
 	love.graphics.setShader()
+
+	local haveWon = true
+	for i = 1, #goals do
+		if not goals[i].hit then
+			haveWon = false
+			break
+		end
+	end
+	if haveWon then
+		love.graphics.setColor(255,255,255)
+		love.graphics.setFont(font_big)
+		love.graphics.print('YOU HAVE WON!', SCREEN_WIDTH * 0.5, SCREEN_HEIGHT * 0.5, math.cos(love.timer.getTime()*2)*0.1, 1, 1, 100, 15)
+		love.graphics.setFont(font_default)
+	end
 end
 
 hook.Add('draw', map.draw)
@@ -59,7 +83,7 @@ function map.selectMirror( x, y, button )
 	local distFunc = util.memoize(function(mirror)
 			return math.distance2d(mirror.x, mirror.y, x, y)
 		end)
-	local closestMirror = util.pickBest(map.getSelectable(), function(a,b)
+	local closestMirror = util.pickBest(EDITING and map.mirrors or map.getSelectable(), function(a,b)
 			return distFunc(a) < distFunc(b)
 		end)
 	
@@ -102,14 +126,27 @@ function map.saveToTable()
 			})
 	end
 
+	local save_goals = {}
+	save_tbl.goals = save_goals
+	for k,v in pairs(goals)do
+		table.insert(save_goals, {
+			x = v.x,
+			y = v.y,
+			c = v.c,
+			r = v.r
+		})
+	end
+
 	return save_tbl 
 end
 
 function map.loadFromTable(tbl)
-	table.Empty(map.mirrors)
-	table.Empty(map.lasers)
+	table.Empty(mirrors)
+	table.Empty(lasers)
+	table.Empty(goals)
 
-	for k,v in pairs(tbl.mirrors)do
+	-- mirrors
+	for k,v in pairs(tbl.mirrors or {})do
 		print(' - loaded mirror ' .. v.x.. ' - ' .. v.y )
 		local mirror = newMirror()
 		mirror.width = v.w
@@ -120,10 +157,23 @@ function map.loadFromTable(tbl)
 		map.addMirror(mirror)
 	end
 
-	for k,v in pairs(tbl.lasers) do
+	-- lasers
+	for k,v in pairs(tbl.lasers or {}) do
+		print(' - loaded laser '..v.x..' - '..v.y)
 		local col = Color(v.c.r, v.c.g, v.c.b, v.c.a)
 		local laser = newLaser(v.x, v.y, col)
 		map.addLaser(laser)
+	end
+
+	-- goals
+	for k,v in pairs(tbl.goals or {}) do
+		print(' - loaded goal '..v.x..' - '..v.y)
+		local col = Color(v.c.r, v.c.g, v.c.b, v.c.a)
+		local goal = newGoal()
+		goal:setColor(col)
+		goal:setRadius(v.r)
+		goal:setPos(v.x, v.y)
+		map.addGoal(goal)
 	end
 end
 
