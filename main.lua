@@ -48,7 +48,7 @@ require 'edit'
 
 function love.load()
 	
-    effect_laser = love.graphics.newShader [[
+    effect_laser = love.graphics.newShader([[
     	extern number time;
         float valueThingy;
         float scale;
@@ -65,7 +65,9 @@ function love.load()
 			b = color.b * scale;
             return vec4(r, g, b, 1.0);
         }
-    ]]
+    ]]) 
+
+   
 
     effect_mirror = love.graphics.newShader [[
     	extern number time;

@@ -20,7 +20,7 @@ function newLaser(_x, _y, c)
 
 	function self.draw()
 		love.graphics.setColor(r, g, b, c.a)
-		love.graphics.circle( 'fill', x, y, 15, 12 )
+		love.graphics.circle( 'fill', x, y, 15, 24 )
 
 		local x, y = x, y
 		local xdir, ydir = 1, 0
